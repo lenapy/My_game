@@ -91,7 +91,7 @@ def аsk_the_audience():
             break
 
 
-def lifeline(number_of_question):
+def сall_to_friend(number_of_question):
     variants = get_variants_of_question(number_of_question)
     for variant, answer in list(variants)[:1]:
         print(variant, answer.replace(", True", ''))
@@ -110,7 +110,7 @@ def choice_tip(number_of_question, used_tips):
                 if user_choice == '1':
                     fifty_fifty_tip(number_of_question)
                 elif user_choice == '2':
-                    lifeline(number_of_question)
+                    сall_to_friend(number_of_question)
                 else:
                     аsk_the_audience()
             else:
