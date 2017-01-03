@@ -1,8 +1,16 @@
+import random
+
+
 from data_for_game.create_data import read_data_file
 
 
-def hide_tru_answer(answer):
-    return answer.replace(", True", '')
+def get_variants_of_question(number_of_question):
+    data = read_data_file()
+    for ques_and_answ in data:
+        if data.index(ques_and_answ) == number_of_question:
+            for k, val in ques_and_answ.items():
+                if isinstance(val, dict):
+                        return val.items()
 
 
 def show_question_and_answers(number_of_question):
@@ -10,18 +18,17 @@ def show_question_and_answers(number_of_question):
     for ques_and_answ in data:
         if data.index(ques_and_answ) == number_of_question:
             print(ques_and_answ.get('question'))
-            for k, val in ques_and_answ.items():
-                if isinstance(val, dict):
-                    for variant, answer in val.items():
-                        print(variant, hide_tru_answer(answer))
+            val = get_variants_of_question(number_of_question)
+            for variant, answer in val:
+                print(variant, answer.replace(", True", ''))
 
 
 def show_tips():
     print("_"*20)
-    print("Вы можете использовать подсказки:"
-          '\n 1. 50:50'
-          '\n 2. Звонок другу'
-          '\n 3. Помощь зала')
+    print("\x1b[1;33mВы можете использовать подсказки:\x1b[0m"
+          '\n \x1b[1;33m1.\x1b[0m \x1b[1;36m50:50\x1b[0m'
+          '\n \x1b[1;33m2.\x1b[0m \x1b[1;36mЗвонок другу\x1b[0m'
+          '\n \x1b[1;33m3.\x1b[0m \x1b[1;36mПомощь зала\x1b[0m')
 
 
 def calculate_points(is_answer_correct, number_of_question):
@@ -41,34 +48,108 @@ def calculate_points(is_answer_correct, number_of_question):
 
 
 def check_true_or_false_answer(player_answer, number_of_question):
-    data = read_data_file()
-    for item in data:
-        if data.index(item) == number_of_question:
-            answers = item.get('answers')
-            answer = answers.get(player_answer)
+    variants = get_variants_of_question(number_of_question)
+    for variant, answer in variants:
+        if variant == player_answer:
             if ", True" in answer:
                 return 1
             else:
                 return 0
 
 
-def play_game():
-    n = 0
-    for i in range(12):
-        show_question_and_answers(n)
-        show_tips()
-        print("_" * 20)
-        # print("1. Ответить\n 2. Воспользоваться подсказкой'")
-        # input_menu = input("Выберите действие:")
-        player_answer = input("Введите ответ:")
-        is_answer_correct = check_true_or_false_answer(player_answer, n)
-        if is_answer_correct == 1:
-            print("Вы выиграли:", calculate_points(is_answer_correct, n), "грн")
-            print("_" * 20)
-            n += 1
-            continue
+def check_user_input(user_input):
+    variants_of_input = ["A", "B", "C", "D"]
+    if user_input in variants_of_input:
+        return True
+    else:
+        return False
+
+
+def fifty_fifty_tip(number_of_question):
+    variants = get_variants_of_question(number_of_question)
+    v1, a1 = "", ""
+    v2, a2 = "", ""
+    for variant, answer in list(variants):
+        if ", True" in answer:
+            v1, a1 = variant, answer.replace(", True", '')
         else:
-            print("Неправильй ответ, Вы заработали", calculate_points(is_answer_correct, n), "грн")
+            v2, a2 = variant, answer
+    print(v1, a1)
+    print(v2, a2)
+
+
+def аsk_the_audience():
+    count = 0
+    variants = ["A", "B", "C", "D"]
+    perсents = [x for x in range(1, 100)]
+    for variant in variants:
+        p = random.choice(perсents)
+        if count + p < 100:
+            count += p
+            print(variant, p, "%")
+        else:
             break
 
-play_game()
+
+def lifeline(number_of_question):
+    variants = get_variants_of_question(number_of_question)
+    for variant, answer in list(variants)[:1]:
+        print(variant, answer.replace(", True", ''))
+
+
+def choice_tip(number_of_question, used_tips):
+    variants_for_choice = ['1', '2', '3']
+
+    valid = False
+    while not valid:
+        user_choice = input("\x1b[1;33mВыберите номер подсказки:\x1b[0m")
+        if user_choice in variants_for_choice:
+            valid = True
+            if user_choice not in used_tips:
+                used_tips.append(user_choice)
+                if user_choice == '1':
+                    fifty_fifty_tip(number_of_question)
+                elif user_choice == '2':
+                    lifeline(number_of_question)
+                else:
+                    аsk_the_audience()
+            else:
+                print("\x1b[1;31mВы уже использовали эту подсказку\x1b[0m")
+        else:
+            print("\x1b[1;31mНеверный ввод\x1b[0m")
+
+
+def play_game():
+    number = 0
+    used_tips = list()
+    for i in range(12):
+        show_question_and_answers(number)
+        show_tips()
+        print("_" * 20)
+        menu = input('\x1b[1;35mЧтобы ответить введите \x1b[1;32m1\x1b[0m\n'
+                     '\x1b[1;35mЧтобы воспользоваться подсказкой введите \x1b[1;32m2:\x1b[0m')
+        if menu == '1':
+            valid = False
+            while not valid:
+                player_answer = input("Введите ответ:")
+                if not check_user_input(player_answer):
+                    print('\x1b[1;31mВыберите один из пердложенных вариантов\x1b[0m')
+                else:
+                    valid = True
+                    is_answer_correct = check_true_or_false_answer(player_answer, number)
+            if is_answer_correct == 1:
+                print("\x1b[1;32mВы выиграли:", calculate_points(is_answer_correct, number), "грн\x1b[0m")
+                print("_" * 20)
+                number += 1
+                continue
+            else:
+                print("\x1b[1;31mНеправильй ответ, Вы заработали",
+                      calculate_points(is_answer_correct, number), "грн\x1b[0m")
+                break
+        else:
+            print('\x1b[5;31m*\x1b[0m'*20)
+            choice_tip(number, used_tips)
+            print('\x1b[5;31m*\x1b[0m' * 20)
+
+if __name__ == '__main__':
+    play_game()
