@@ -38,9 +38,9 @@ def calculate_points(is_answer_correct, number_of_question):
     win_point = points[number_of_question]
     if is_answer_correct == 1:
         players_points = win_point
-    elif is_answer_correct == 0 and number_of_question == 4:
+    elif is_answer_correct == 0 and number_of_question == 4 or 5 or 6:
         players_points = points[3]
-    elif is_answer_correct == 0 and number_of_question == 8:
+    elif is_answer_correct == 0 and number_of_question == 8 or 9 or 10:
         players_points = points[7]
     else:
         players_points = 0
