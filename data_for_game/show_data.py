@@ -19,7 +19,8 @@ def show_question_and_answers(number_of_question):
         if data.index(ques_and_answ) == number_of_question:
             print(ques_and_answ.get('question'))
             val = get_variants_of_question(number_of_question)
-            for variant, answer in val:
+            sorted_val = sorted(val)
+            for variant, answer in sorted_val:
                 print(variant, answer.replace(", True", ''))
 
 
@@ -38,9 +39,9 @@ def calculate_points(is_answer_correct, number_of_question):
     win_point = points[number_of_question]
     if is_answer_correct == 1:
         players_points = win_point
-    elif is_answer_correct == 0 and number_of_question == 4 or 5 or 6:
+    elif is_answer_correct == 0 and number_of_question in [4, 5, 6]:
         players_points = points[3]
-    elif is_answer_correct == 0 and number_of_question == 8 or 9 or 10:
+    elif is_answer_correct == 0 and number_of_question in [8, 9, 10]:
         players_points = points[7]
     else:
         players_points = 0
@@ -59,10 +60,7 @@ def check_true_or_false_answer(player_answer, number_of_question):
 
 def check_user_input(user_input):
     variants_of_input = ["A", "B", "C", "D"]
-    if user_input in variants_of_input:
-        return True
-    else:
-        return False
+    return user_input in variants_of_input
 
 
 def fifty_fifty_tip(number_of_question):
@@ -122,7 +120,7 @@ def choice_tip(number_of_question, used_tips):
 def play_game():
     number = 0
     used_tips = list()
-    for i in range(12):
+    for i in range(13):
         show_question_and_answers(number)
         show_tips()
         print("_" * 20)
